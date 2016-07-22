@@ -7,10 +7,11 @@ import (
 	"os"
 	"fmt"
 	"bytes"
+	"time"
 	"encoding/json"
 )
 
-var lastInputInfo struct {
+type Info struct {
     cbSize uint32
     dwTime uint32
 }
@@ -29,7 +30,7 @@ var (
 
 
 func makeHttpPostReq(url string, id string, timestamp string) {
-    client := http.Client{}
+    client := http.Client{ Timeout: 1 * time.Second}
     var data Data
     data.Id = id
     data.Timestamp = timestamp
@@ -42,6 +43,7 @@ func makeHttpPostReq(url string, id string, timestamp string) {
 
 
 func beep() {
+    var lastInputInfo Info
     lastInputInfo.cbSize = uint32(unsafe.Sizeof(lastInputInfo))
     r1, _, _ := getLastInputInfo.Call(uintptr(unsafe.Pointer(&lastInputInfo)))
     hn, _ := os.Hostname()
