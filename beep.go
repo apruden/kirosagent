@@ -1,8 +1,6 @@
 package main
 
 import (
-	"syscall"
-	"unsafe"
 	"net/http"
 	"os"
 	"fmt"
@@ -11,22 +9,11 @@ import (
 	"encoding/json"
 )
 
-type Info struct {
-    cbSize uint32
-    dwTime uint32
-}
-
 
 type Data struct {
 	Id string `json:"id"`
 	Timestamp string `json:"timestamp"`
 }
-
-
-var (
-	user32 = syscall.MustLoadDLL("user32.dll")
-	getLastInputInfo = user32.MustFindProc("GetLastInputInfo") 
-)
 
 
 func makeHttpPostReq(url string, id string, timestamp string) {
@@ -43,12 +30,6 @@ func makeHttpPostReq(url string, id string, timestamp string) {
 
 
 func beep() {
-    var lastInputInfo Info
-    lastInputInfo.cbSize = uint32(unsafe.Sizeof(lastInputInfo))
-    r1, _, _ := getLastInputInfo.Call(uintptr(unsafe.Pointer(&lastInputInfo)))
     hn, _ := os.Hostname()
-
-    if r1 != 0 {
-        makeHttpPostReq("http://localhost:8080/presence", hn, fmt.Sprintf("%v", lastInputInfo.dwTime))
-    }
+    makeHttpPostReq("http://localhost:8080/presence", hn, fmt.Sprintf("%v", time.Now().Unix()))
 }

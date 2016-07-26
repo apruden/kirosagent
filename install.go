@@ -12,16 +12,20 @@ import (
 func exePath() (string, error) {
 	prog := os.Args[0]
 	p, err := filepath.Abs(prog)
+
 	if err != nil {
 		return "", err
 	}
+
 	fi, err := os.Stat(p)
+
 	if err == nil {
 		if !fi.Mode().IsDir() {
 			return p, nil
 		}
 		err = fmt.Errorf("%s is directory", p)
 	}
+
 	if filepath.Ext(p) == "" {
 		p += ".exe"
 		fi, err := os.Stat(p)
@@ -32,8 +36,10 @@ func exePath() (string, error) {
 			err = fmt.Errorf("%s is directory", p)
 		}
 	}
+
 	return "", err
 }
+
 
 func installService(name, desc string) error {
 	exepath, err := exePath()
@@ -50,7 +56,7 @@ func installService(name, desc string) error {
 		s.Close()
 		return fmt.Errorf("service %s already exists", name)
 	}
-	s, err = m.CreateService(name, exepath, mgr.Config{DisplayName: desc}, "is", "auto-started")
+	s, err = m.CreateService(name, exepath, mgr.Config{DisplayName: desc, StartType: mgr.StartAutomatic}, "is", "auto-started")
 	if err != nil {
 		return err
 	}

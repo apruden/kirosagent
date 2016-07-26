@@ -44,7 +44,7 @@ func main() {
 		runService(svcName, true)
 		return
 	case "install":
-		err = installService(svcName, "my service")
+		err = installService(svcName, "kirosagent")
 	case "remove":
 		err = removeService(svcName)
 	case "start":

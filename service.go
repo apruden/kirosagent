@@ -16,14 +16,13 @@ type myservice struct{}
 func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown | svc.AcceptPauseAndContinue
 	changes <- svc.Status{State: svc.StartPending}
-	tick := time.Tick(5 * time.Second)
+	tick := time.Tick(6 * time.Second)
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
 loop:
 	for {
 		select {
 		case <-tick:
 			beep()
-			elog.Info(1, "beep")
 		case c := <-r:
 			switch c.Cmd {
 			case svc.Interrogate:
