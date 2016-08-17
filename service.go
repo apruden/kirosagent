@@ -11,18 +11,19 @@ import (
 
 var elog debug.Log
 
-type myservice struct{}
+type kirosAgentService struct{}
 
-func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
+func (m *kirosAgentService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown | svc.AcceptPauseAndContinue
 	changes <- svc.Status{State: svc.StartPending}
-	tick := time.Tick(6 * time.Second)
+	tick := time.Tick(60 * time.Second)
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
+	beat()
 loop:
 	for {
 		select {
 		case <-tick:
-			beep()
+			beat()
 		case c := <-r:
 			switch c.Cmd {
 			case svc.Interrogate:
@@ -44,6 +45,7 @@ loop:
 
 func runService(name string, isDebug bool) {
 	var err error
+
 	if isDebug {
 		elog = debug.New(name)
 	} else {
@@ -52,17 +54,23 @@ func runService(name string, isDebug bool) {
 			return
 		}
 	}
+
 	defer elog.Close()
 
 	elog.Info(1, fmt.Sprintf("starting %s service", name))
+
 	run := svc.Run
+
 	if isDebug {
 		run = debug.Run
 	}
-	err = run(name, &myservice{})
+
+	err = run(name, &kirosAgentService{})
+
 	if err != nil {
 		elog.Error(1, fmt.Sprintf("%s service failed: %v", name, err))
 		return
 	}
+
 	elog.Info(1, fmt.Sprintf("%s service stopped", name))
 }

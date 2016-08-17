@@ -8,6 +8,7 @@ SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
 PrivilegesRequired=admin
 UseSetupLdr=yes
+OutputBaseFilename=KirosAgentSetup
 
 [Files]
 Source: "E:\gowork\bin\kirosagent.exe"; DestDir: "{app}"
